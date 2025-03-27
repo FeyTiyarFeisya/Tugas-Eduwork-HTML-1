@@ -1,0 +1,44 @@
+CREATE DATABASE ecommerce;
+USE ecommerce;
+
+-- Tabel Produk
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    description TEXT,
+    stock INT NOT NULL
+);
+
+-- Tabel Pengguna
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Tabel Pesanan
+CREATE TABLE orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    product_id INT,
+    quantity INT NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- Query untuk menambahkan data produk
+INSERT INTO products (name, price, description, stock) VALUES
+('Laptop Gaming', 15000000.00, 'Laptop dengan spesifikasi tinggi', 10),
+('Smartphone 5G', 7000000.00, 'Smartphone dengan jaringan 5G', 20);
+
+-- Query untuk membaca semua produk
+SELECT * FROM products;
+
+-- Query untuk memperbarui data produk
+UPDATE products SET price = 14000000 WHERE id = 1;
+
+-- Query untuk menghapus produk berdasarkan ID
+DELETE FROM products WHERE id = 2;
