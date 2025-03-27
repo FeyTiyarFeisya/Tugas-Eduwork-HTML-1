@@ -1,0 +1,32 @@
+const products = [
+    { name: "Laptop", price: 12000000, category: "Elektronik", description: "Laptop gaming dengan spesifikasi tinggi.", image: "https://via.placeholder.com/150" },
+    { name: "Smartphone", price: 5000000, category: "Elektronik", description: "Smartphone dengan kamera berkualitas.", image: "https://via.placeholder.com/150" },
+    { name: "Kemeja", price: 250000, category: "Fashion", description: "Kemeja pria bahan katun premium.", image: "https://via.placeholder.com/150" },
+    { name: "Sepatu Sneakers", price: 700000, category: "Fashion", description: "Sneakers stylish untuk sehari-hari.", image: "https://via.placeholder.com/150" }
+];
+
+function displayProducts(filterCategory = "All") {
+    const productContainer = document.getElementById("product-list");
+    productContainer.innerHTML = "";
+    
+    const filteredProducts = filterCategory === "All" ? products : products.filter(product => product.category === filterCategory);
+    
+    filteredProducts.forEach(product => {
+        const productCard = document.createElement("div");
+        productCard.classList.add("product-card");
+        productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" class="product-image">
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+            <p><strong>Rp ${product.price.toLocaleString()}</strong></p>
+        `;
+        productContainer.appendChild(productCard);
+    });
+}
+
+document.getElementById("category-filter").addEventListener("change", function() {
+    displayProducts(this.value);
+});
+
+// Load products on page load
+document.addEventListener("DOMContentLoaded", () => displayProducts());
