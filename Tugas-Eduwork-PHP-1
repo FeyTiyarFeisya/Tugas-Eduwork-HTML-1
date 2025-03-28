@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Produk</title>
+</head>
+<body>
+    <h2>Tambah Produk Baru</h2>
+    <form action="process.php" method="POST">
+        <label for="nama">Nama Produk:</label><br>
+        <input type="text" id="nama" name="nama"><br><br>
+
+        <label for="harga">Harga Produk:</label><br>
+        <input type="number" id="harga" name="harga" step="0.01"><br><br>
+
+        <label for="deskripsi">Deskripsi Produk:</label><br>
+        <textarea id="deskripsi" name="deskripsi"></textarea><br><br>
+
+        <button type="submit">Simpan</button>
+    </form>
+</body>
+</html>
+
+
+<?php
+// Periksa apakah form telah disubmit
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Ambil data dari form
+    $nama = trim($_POST["nama"]);
+    $harga = trim($_POST["harga"]);
+    $deskripsi = trim($_POST["deskripsi"]);
+
+    // Validasi: Pastikan semua field tidak kosong
+    if (empty($nama) || empty($harga) || empty($deskripsi)) {
+        echo "Semua field harus diisi! <a href='index.php'>Kembali</a>";
+        exit;
+    }
+
+    // Konversi harga ke tipe numerik
+    $harga = floatval($harga);
+
+    // Logika sederhana dengan if-else
+    if ($harga > 0) {
+        echo "<h3>Produk Berhasil Disimpan</h3>";
+        echo "Nama: $nama <br>";
+        echo "Harga: Rp " . number_format($harga, 2, ',', '.') . "<br>";
+        echo "Deskripsi: $deskripsi <br>";
+    } else {
+        echo "Harga harus lebih dari 0! <a href='index.php'>Kembali</a>";
+    }
+} else {
+    echo "Akses tidak valid!";
+}
+?>
+
