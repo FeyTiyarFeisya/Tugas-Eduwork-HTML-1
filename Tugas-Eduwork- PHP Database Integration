@@ -1,0 +1,146 @@
+<?php
+$host = 'localhost'; // Ganti dengan host database Anda
+$user = 'root'; // Ganti dengan username MySQL Anda
+$password = ''; // Ganti dengan password MySQL Anda
+$dbname = 'ecommerce_db'; // Ganti dengan nama database Anda
+
+// Membuat koneksi ke database
+$conn = new mysqli($host, $user, $password, $dbname);
+
+// Cek koneksi
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
+}
+?>
+
+
+
+<?php
+include 'koneksi.php'; // Masukkan file koneksi yang telah dibuat
+
+// Query untuk mengambil data produk
+$query = "SELECT * FROM produk"; // Ganti 'produk' dengan nama tabel produk di database Anda
+
+// Menjalankan query
+$result = $conn->query($query);
+
+if ($result->num_rows > 0) {
+    // Menampilkan data produk
+    while ($row = $result->fetch_assoc()) {
+        echo "<div class='produk'>";
+        echo "<img src='" . $row['gambar'] . "' alt='" . $row['nama_produk'] . "'>";
+        echo "<h3>" . $row['nama_produk'] . "</h3>";
+        echo "<p>" . $row['deskripsi'] . "</p>";
+        echo "<p>Harga: Rp " . number_format($row['harga'], 0, ',', '.') . "</p>";
+        echo "</div>";
+    }
+} else {
+    echo "Produk tidak ditemukan!";
+}
+
+$conn->close(); // Menutup koneksi database
+?>
+
+
+
+<?php
+include 'koneksi.php'; 
+
+// Ambil daftar kategori dari database
+$queryKategori = "SELECT * FROM kategori"; // Ganti 'kategori' dengan tabel kategori
+$resultKategori = $conn->query($queryKategori);
+
+echo "<form method='GET' action=''>";
+echo "<label for='kategori'>Filter berdasarkan kategori:</label>";
+echo "<select name='kategori' id='kategori'>";
+echo "<option value=''>Semua Kategori</option>";
+
+while ($row = $resultKategori->fetch_assoc()) {
+    echo "<option value='" . $row['id_kategori'] . "'>" . $row['nama_kategori'] . "</option>";
+}
+
+echo "</select>";
+echo "<input type='submit' value='Filter'>";
+echo "</form>";
+?>
+
+<?php
+include 'koneksi.php';
+
+// Ambil kategori yang dipilih
+$kategoriId = isset($_GET['kategori']) ? $_GET['kategori'] : '';
+
+// Membuat query untuk mengambil produk
+$query = "SELECT * FROM produk";
+if ($kategoriId) {
+    $query .= " WHERE id_kategori = $kategoriId"; // Menambahkan filter kategori jika ada
+}
+
+$result = $conn->query($query);
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        echo "<div class='produk'>";
+        echo "<img src='" . $row['gambar'] . "' alt='" . $row['nama_produk'] . "'>";
+        echo "<h3>" . $row['nama_produk'] . "</h3>";
+        echo "<p>" . $row['deskripsi'] . "</p>";
+        echo "<p>Harga: Rp " . number_format($row['harga'], 0, ',', '.') . "</p>";
+        echo "</div>";
+    }
+} else {
+    echo "Produk tidak ditemukan!";
+}
+
+$conn->close(); 
+?>
+
+
+<?php
+include 'koneksi.php';
+
+// Ambil kategori yang dipilih
+$kategoriId = isset($_GET['kategori']) ? $_GET['kategori'] : '';
+
+// Membuat query untuk mengambil produk
+$query = "SELECT * FROM produk";
+if ($kategoriId) {
+    $query .= " WHERE id_kategori = $kategoriId"; // Menambahkan filter kategori jika ada
+}
+
+$result = $conn->query($query);
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        echo "<div class='produk'>";
+        echo "<img src='" . $row['gambar'] . "' alt='" . $row['nama_produk'] . "'>";
+        echo "<h3>" . $row['nama_produk'] . "</h3>";
+        echo "<p>" . $row['deskripsi'] . "</p>";
+        echo "<p>Harga: Rp " . number_format($row['harga'], 0, ',', '.') . "</p>";
+        echo "</div>";
+    }
+} else {
+    echo "Produk tidak ditemukan!";
+}
+
+$conn->close(); 
+?>
+
+.produk {
+    width: 200px;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.produk img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
