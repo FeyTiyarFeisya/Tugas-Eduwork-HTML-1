@@ -1,0 +1,192 @@
+php artisan make:controller ProductController
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
+{
+    // Menampilkan semua produk
+    public function index()
+    {
+        $products = Product::all();
+        return view('products.index', compact('products'));
+    }
+
+    // Menampilkan form untuk menambahkan produk baru
+    public function create()
+    {
+        return view('products.create');
+    }
+
+    // Menyimpan produk baru
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric',
+            'stock' => 'required|integer',
+        ]);
+
+        Product::create($request->all());
+
+        return redirect()->route('products.index')->with('success', 'Product added successfully.');
+    }
+
+    // Menampilkan form untuk mengedit produk
+    public function edit($id)
+    {
+        $product = Product::findOrFail($id);
+        return view('products.edit', compact('product'));
+    }
+
+    // Mengupdate produk
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric',
+            'stock' => 'required|integer',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->update($request->all());
+
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+    }
+
+    // Menghapus produk
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+    }
+}
+
+use App\Http\Controllers\ProductController;
+
+Route::resource('products', ProductController::class);
+
+
+php artisan make:controller PageController
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class PageController extends Controller
+{
+    // Menampilkan halaman About
+    public function about()
+    {
+        return view('pages.about');
+    }
+
+    // Menampilkan halaman Privacy Policy
+    public function privacy()
+    {
+        return view('pages.privacy');
+    }
+
+    // Menampilkan halaman Terms of Service
+    public function terms()
+    {
+        return view('pages.terms');
+    }
+}
+use App\Http\Controllers\PageController;
+
+Route::get('/about', [PageController::class, 'about']);
+Route::get('/privacy', [PageController::class, 'privacy']);
+Route::get('/terms', [PageController::class, 'terms']);
+<!-- resources/views/products/index.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+</head>
+<body>
+    <h1>Product List</h1>
+    <a href="{{ route('products.create') }}">Add New Product</a>
+    <ul>
+        @foreach ($products as $product)
+            <li>{{ $product->name }} - ${{ $product->price }}</li>
+        @endforeach
+    </ul>
+</body>
+</html>
+<!-- resources/views/products/create.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+</head>
+<body>
+    <h1>Add Product</h1>
+    <form action="{{ route('products.store') }}" method="POST">
+        @csrf
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+        <br>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" required>
+        <br>
+        <label for="stock">Stock:</label>
+        <input type="number" id="stock" name="stock" required>
+        <br>
+        <button type="submit">Save Product</button>
+    </form>
+</body>
+</html>
+<!-- resources/views/pages/about.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+</head>
+<body>
+    <h1>About Us</h1>
+    <p>This is the About Us page.</p>
+</body>
+</html>
+<!-- resources/views/pages/privacy.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy</title>
+</head>
+<body>
+    <h1>Privacy Policy</h1>
+    <p>This is the Privacy Policy page.</p>
+</body>
+</html>
+<!-- resources/views/pages/terms.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service</title>
+</head>
+<body>
+    <h1>Terms of Service</h1>
+    <p>This is the Terms of Service page.</p>
+</body>
+</html>
+php artisan serve
