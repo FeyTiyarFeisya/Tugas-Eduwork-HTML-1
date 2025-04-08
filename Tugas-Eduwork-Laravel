@@ -1,0 +1,147 @@
+composer create-project --prefer-dist laravel/laravel ecommerce
+cd ecommerce
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ecommerce_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Route untuk produk
+Route::get('/products', [ProductController::class, 'index']);
+
+// Route untuk keranjang
+Route::get('/cart', [OrderController::class, 'cart']);
+
+// Route untuk checkout
+Route::get('/checkout', [OrderController::class, 'checkout']);
+
+
+
+php artisan make:model Product -m
+php artisan make:model Order -m
+
+
+public function up()
+{
+    Schema::create('products', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->text('description');
+        $table->decimal('price', 8, 2);
+        $table->integer('stock');
+        $table->timestamps();
+    });
+}
+
+public function up()
+{
+    Schema::create('orders', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('user_id');
+        $table->decimal('total', 10, 2);
+        $table->string('status');
+        $table->timestamps();
+
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+    });
+}
+
+php artisan migrate
+php artisan make:controller ProductController
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
+{
+    public function index()
+    {
+        $products = Product::all();
+        return view('products.index', compact('products'));
+    }
+}
+php artisan make:controller OrderController
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    public function cart()
+    {
+        // Logic untuk menampilkan keranjang belanja
+        return view('orders.cart');
+    }
+
+    public function checkout()
+    {
+        // Logic untuk melakukan checkout
+        return view('orders.checkout');
+    }
+}
+<!-- resources/views/products/index.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+</head>
+<body>
+    <h1>Our Products</h1>
+    <ul>
+        @foreach ($products as $product)
+            <li>{{ $product->name }} - ${{ $product->price }}</li>
+        @endforeach
+    </ul>
+</body>
+</html>
+
+<!-- resources/views/orders/cart.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+</head>
+<body>
+    <h1>Your Cart</h1>
+    <!-- Keranjang belanja akan ditampilkan di sini -->
+</body>
+</html>
+
+<!-- resources/views/orders/checkout.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+</head>
+<body>
+    <h1>Checkout</h1>
+    <!-- Formulir checkout akan ditampilkan di sini -->
+</body>
+</html>
+php artisan serve
+
+Akses website kamu di browser dengan membuka http://localhost:8000.
+
+Home: http://localhost:8000/
+
+Products: http://localhost:8000/products
+
+Cart: http://localhost:8000/cart
+
+Checkout: http://localhost:8000/checkout
