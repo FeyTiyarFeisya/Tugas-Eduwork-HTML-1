@@ -1,0 +1,93 @@
+<form action="/add-product" method="POST" enctype="multipart/form-data">
+    <label for="name">Nama Produk</label>
+    <input type="text" id="name" name="name" required>
+    <label for="description">Deskripsi</label>
+    <textarea id="description" name="description" required></textarea>
+    <label for="price">Harga</label>
+    <input type="number" id="price" name="price" required>
+    <label for="image">Gambar Produk</label>
+    <input type="file" id="image" name="image" required>
+    <button type="submit">Tambah Produk</button>
+</form>
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['name'];
+    $description = $_POST['description'];
+    $price = $_POST['price'];
+    $image = $_FILES['image'];
+
+    // Simpan produk ke database dan upload gambar
+    // Kode untuk menyimpan data di database (MySQL, PostgreSQL, dll.)
+}
+
+$query = "SELECT * FROM products";
+$result = mysqli_query($conn, $query);
+
+while ($row = mysqli_fetch_assoc($result)) {
+    echo "<div class='product'>";
+    echo "<img src='" . $row['image'] . "' alt='Product Image'>";
+    echo "<h3>" . $row['name'] . "</h3>";
+    echo "<p>" . $row['description'] . "</p>";
+    echo "<p>Rp " . $row['price'] . "</p>";
+    echo "<a href='/edit-product?id=" . $row['id'] . "'>Edit</a>";
+    echo "<a href='/delete-product?id=" . $row['id'] . "'>Hapus</a>";
+    echo "</div>";
+}
+
+<form action="/update-product?id=<?= $product_id ?>" method="POST">
+    <input type="text" name="name" value="<?= $product['name'] ?>" required>
+    <textarea name="description" required><?= $product['description'] ?></textarea>
+    <input type="number" name="price" value="<?= $product['price'] ?>" required>
+    <button type="submit">Update Produk</button>
+</form>
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['name'];
+    $description = $_POST['description'];
+    $price = $_POST['price'];
+
+    $query = "UPDATE products SET name='$name', description='$description', price='$price' WHERE id='$product_id'";
+    mysqli_query($conn, $query);
+}
+
+$product_id = $_GET['id'];
+$query = "DELETE FROM products WHERE id='$product_id'";
+mysqli_query($conn, $query);
+
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
+    $product_id = $_POST['product_id'];
+    $quantity = $_POST['quantity'];
+
+    // Ambil detail produk dari database
+    $query = "SELECT * FROM products WHERE id='$product_id'";
+    $result = mysqli_query($conn, $query);
+    $product = mysqli_fetch_assoc($result);
+
+    // Menambahkan produk ke keranjang
+    $cart_item = array(
+        'id' => $product['id'],
+        'name' => $product['name'],
+        'price' => $product['price'],
+        'quantity' => $quantity
+    );
+
+    $_SESSION['cart'][] = $cart_item;
+}
+
+<form action="/add-to-cart" method="POST">
+    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+    <input type="number" name="quantity" value="1" min="1">
+    <button type="submit" name="add_to_cart">Tambah ke Keranjang</button>
+</form>
+
+session_start();
+if (isset($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $item) {
+        echo "<p>" . $item['name'] . " x " . $item['quantity'] . " - Rp " . ($item['price'] * $item['quantity']) . "</p>";
+    }
+} else {
+    echo "<p>Keranjang kosong.</p>";
+}
