@@ -1,0 +1,134 @@
+php artisan make:seeder CategoriesTableSeeder
+php artisan make:seeder ProductsTableSeeder
+php artisan make:seeder UsersTableSeeder
+php artisan make:seeder OrdersTableSeeder
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class CategoriesTableSeeder extends Seeder
+{
+    public function run()
+    {
+        DB::table('categories')->insert([
+            ['name' => 'Elektronik'],
+            ['name' => 'Pakaian'],
+            ['name' => 'Peralatan Rumah'],
+            ['name' => 'Buku'],
+            ['name' => 'Mainan'],
+        ]);
+    }
+}
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class ProductsTableSeeder extends Seeder
+{
+    public function run()
+    {
+        DB::table('products')->insert([
+            ['name' => 'Smartphone', 'description' => 'Smartphone canggih dengan berbagai fitur.', 'stock' => 50, 'image' => 'https://via.placeholder.com/150', 'category_id' => 1],
+            ['name' => 'Kaos Polos', 'description' => 'Kaos polos bahan katun, nyaman dipakai.', 'stock' => 100, 'image' => 'https://via.placeholder.com/150', 'category_id' => 2],
+            ['name' => 'Meja Kerja', 'description' => 'Meja kerja minimalis dan tahan lama.', 'stock' => 30, 'image' => 'https://via.placeholder.com/150', 'category_id' => 3],
+            ['name' => 'Buku Panduan Laravel', 'description' => 'Buku untuk belajar Laravel dari dasar.', 'stock' => 20, 'image' => 'https://via.placeholder.com/150', 'category_id' => 4],
+            ['name' => 'Boneka Teddy', 'description' => 'Boneka teddy bear lucu dan empuk.', 'stock' => 150, 'image' => 'https://via.placeholder.com/150', 'category_id' => 5],
+        ]);
+    }
+}
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+
+class UsersTableSeeder extends Seeder
+{
+    public function run()
+    {
+        DB::table('users')->insert([
+            ['name' => 'John Doe', 'email' => 'john@example.com', 'password' => Hash::make('password')],
+            ['name' => 'Jane Doe', 'email' => 'jane@example.com', 'password' => Hash::make('password')],
+        ]);
+    }
+}
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class OrdersTableSeeder extends Seeder
+{
+    public function run()
+    {
+        DB::table('orders')->insert([
+            ['user_id' => 1, 'product_id' => 1, 'quantity' => 1, 'total' => 500000],
+            ['user_id' => 1, 'product_id' => 2, 'quantity' => 2, 'total' => 300000],
+            ['user_id' => 2, 'product_id' => 3, 'quantity' => 1, 'total' => 700000],
+        ]);
+    }
+}
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run()
+    {
+        $this->call([
+            CategoriesTableSeeder::class,
+            ProductsTableSeeder::class,
+            UsersTableSeeder::class,
+            OrdersTableSeeder::class,
+        ]);
+    }
+}
+
+php artisan db:seed
+
+
+Schema::create('categories', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->timestamps();
+});
+
+
+Schema::create('products', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->text('description');
+    $table->integer('stock');
+    $table->string('image');
+    $table->foreignId('category_id')->constrained()->onDelete('cascade');
+    $table->timestamps();
+});
+
+Schema::create('users', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->timestamp('email_verified_at')->nullable();
+    $table->string('password');
+    $table->rememberToken();
+    $table->timestamps();
+});
+
+Schema::create('orders', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+    $table->foreignId('product_id')->constrained()->onDelete('cascade');
+    $table->integer('quantity');
+    $table->decimal('total', 10, 2);
+    $table->timestamps();
+});
+
+php artisan migrate
