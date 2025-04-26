@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Navigasi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="kategori.html">Daftar Kategori</a></li>
+            <li><a href="produk.html">Daftar Produk</a></li>
+        </ul>
+    </nav>
+</body>
+</html>
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+}
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Kategori Produk</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Daftar Kategori Produk</h1>
+
+    <button onclick="window.location.href='tambah_kategori.html'">Tambah Kategori</button>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nama Kategori</th>
+                <th>Jumlah Produk</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Elektronik</td>
+                <td>10</td>
+                <td>
+                    <button>Edit</button>
+                    <button>Hapus</button>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Pakaian</td>
+                <td>25</td>
+                <td>
+                    <button>Edit</button>
+                    <button>Hapus</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Produk</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Daftar Produk</h1>
+
+    <button onclick="window.location.href='tambah_produk.html'">Tambah Produk</button>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nama Produk</th>
+                <th>Deskripsi</th>
+                <th>Stok</th>
+                <th>Harga</th>
+                <th>Gambar</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Smartphone</td>
+                <td>Smartphone dengan layar 6.5 inch</td>
+                <td>50</td>
+                <td>Rp 3.000.000</td>
+                <td><img src="smartphone.jpg" alt="Smartphone" width="100"></td>
+                <td>
+                    <button>Edit</button>
+                    <button>Hapus</button>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Kaos Polos</td>
+                <td>Kaos cotton berkualitas tinggi</td>
+                <td>100</td>
+                <td>Rp 150.000</td>
+                <td><img src="kaos.jpg" alt="Kaos Polos" width="100"></td>
+                <td>
+                    <button>Edit</button>
+                    <button>Hapus</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
