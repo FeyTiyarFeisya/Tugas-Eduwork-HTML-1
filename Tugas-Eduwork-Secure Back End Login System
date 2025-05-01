@@ -1,0 +1,105 @@
+php artisan make:migration add_role_to_users_table --table=users
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddRoleToUsersTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('role')->default('user'); // Menambahkan kolom 'role' dengan nilai default 'user'
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('role'); // Menghapus kolom 'role'
+        });
+    }
+}
+
+php artisan migrate
+php artisan make:middleware AdminMiddleware
+
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class AdminMiddleware
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        // Cek apakah user yang sedang login memiliki role 'admin'
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return $next($request); // Jika admin, lanjutkan ke route
+        }
+
+        // Jika bukan admin, redirect ke halaman lain (misalnya halaman beranda)
+        return redirect('/home')->with('error', 'You do not have admin access.');
+    }
+}
+
+protected $routeMiddleware = [
+    // Middleware lain...
+    'admin' => \App\Http\Middleware\AdminMiddleware::class,
+];
+
+use Illuminate\Support\Facades\Route;
+
+Route::group(['middleware' => ['auth', 'admin']], function () {
+    // Halaman-halaman yang hanya dapat diakses oleh Admin
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/users', [AdminController::class, 'manageUsers'])->name('admin.users');
+    // Tambahkan route lainnya yang hanya untuk admin
+});
+
+use Illuminate\Support\Facades\Auth;
+
+public function someFunction()
+{
+    if (Auth::user()->role !== 'admin') {
+        return redirect('/home')->with('error', 'You do not have admin access.');
+    }
+
+    // Lakukan proses lain jika pengguna adalah admin
+}
+
+<form action="{{ route('user.update') }}" method="POST">
+    @csrf
+    @method('PUT')
+
+    <label for="role">Role:</label>
+    <select name="role" id="role">
+        <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
+        <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
+    </select>
+
+    <button type="submit">Update</button>
+</form>
