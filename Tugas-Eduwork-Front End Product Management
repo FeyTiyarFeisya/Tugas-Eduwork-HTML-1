@@ -1,0 +1,61 @@
+<h2>Tambah Produk</h2>
+<form action="produk_simpan.php" method="POST" enctype="multipart/form-data">
+    <label>Nama Produk:</label>
+    <input type="text" name="nama_produk" required><br>
+
+    <label>Deskripsi:</label>
+    <textarea name="deskripsi"></textarea><br>
+
+    <label>Harga:</label>
+    <input type="number" name="harga" required><br>
+
+    <label>Kategori:</label>
+    <select name="kategori_id">
+        <!-- Diisi dari database -->
+    </select><br>
+
+    <label>Foto Produk:</label>
+    <input type="file" name="gambar"><br>
+
+    <button type="submit">Simpan</button>
+</form>
+
+
+<h2>Edit Produk</h2>
+<form action="produk_update.php" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="id_produk" value="<?= $produk['id'] ?>">
+
+    <label>Nama Produk:</label>
+    <input type="text" name="nama_produk" value="<?= $produk['nama'] ?>" required><br>
+
+    <label>Deskripsi:</label>
+    <textarea name="deskripsi"><?= $produk['deskripsi'] ?></textarea><br>
+
+    <label>Harga:</label>
+    <input type="number" name="harga" value="<?= $produk['harga'] ?>" required><br>
+
+    <label>Kategori:</label>
+    <select name="kategori_id">
+        <!-- Pilih kategori aktif -->
+    </select><br>
+
+    <label>Ganti Foto Produk (opsional):</label>
+    <input type="file" name="gambar"><br>
+
+    <button type="submit">Update</button>
+</form>
+
+<h2>Tambah Kategori Produk</h2>
+<form action="kategori_simpan.php" method="POST">
+    <label>Nama Kategori:</label>
+    <input type="text" name="nama_kategori" required><br>
+    <button type="submit">Simpan</button>
+</form>
+
+<h2>Edit Kategori Produk</h2>
+<form action="kategori_update.php" method="POST">
+    <input type="hidden" name="id_kategori" value="<?= $kategori['id'] ?>">
+    <label>Nama Kategori:</label>
+    <input type="text" name="nama_kategori" value="<?= $kategori['nama'] ?>" required><br>
+    <button type="submit">Update</button>
+</form>
