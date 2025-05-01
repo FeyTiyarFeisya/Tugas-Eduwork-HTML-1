@@ -1,0 +1,169 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class ProductCategoryController extends Controller
+{
+    /**
+     * Menampilkan form untuk menambah kategori produk
+     */
+    public function create()
+    {
+        return view('product-category.create');
+    }
+
+    /**
+     * Menyimpan kategori produk ke database
+     */
+    public function store(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'nama_kategori' => 'required|string|max:255',
+        ]);
+
+        // Menyimpan kategori produk
+        $category = new \App\Models\ProductCategory();
+        $category->nama_kategori = $request->input('nama_kategori');
+        $category->save();
+
+        return redirect()->route('product-category.index')->with('success', 'Kategori produk berhasil ditambahkan');
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Kategori Produk</title>
+</head>
+<body>
+
+<h2>Tambah Kategori Produk</h2>
+
+@if ($errors->any())
+    <div>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<form action="{{ route('product-category.store') }}" method="POST">
+    @csrf
+    <label for="nama_kategori">Nama Kategori:</label>
+    <input type="text" id="nama_kategori" name="nama_kategori" required>
+    <button type="submit">Simpan</button>
+</form>
+
+</body>
+</html>
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\ProductCategory; // Mengimpor model kategori produk
+
+class ProductController extends Controller
+{
+    /**
+     * Menampilkan form untuk menambah produk
+     */
+    public function create()
+    {
+        // Mendapatkan data kategori produk
+        $categories = ProductCategory::all();
+        return view('product.create', compact('categories'));
+    }
+
+    /**
+     * Menyimpan produk ke database
+     */
+    public function store(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'nama_produk' => 'required|string|max:255',
+            'harga' => 'required|numeric|min:0',
+            'kategori_id' => 'required|exists:product_categories,id',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Menyimpan produk ke database
+        $product = new \App\Models\Product();
+        $product->nama_produk = $request->input('nama_produk');
+        $product->harga = $request->input('harga');
+        $product->kategori_id = $request->input('kategori_id');
+
+        // Menangani upload gambar produk
+        if ($request->hasFile('gambar')) {
+            $imageName = time().'.'.$request->gambar->extension();
+            $request->gambar->move(public_path('images'), $imageName);
+            $product->gambar = $imageName;
+        }
+
+        $product->save();
+
+        return redirect()->route('product.index')->with('success', 'Produk berhasil ditambahkan');
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Produk</title>
+</head>
+<body>
+
+<h2>Tambah Produk</h2>
+
+@if ($errors->any())
+    <div>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<form action="{{ route('product.store') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <label for="nama_produk">Nama Produk:</label>
+    <input type="text" id="nama_produk" name="nama_produk" required><br>
+
+    <label for="harga">Harga:</label>
+    <input type="number" id="harga" name="harga" required><br>
+
+    <label for="kategori_id">Kategori Produk:</label>
+    <select id="kategori_id" name="kategori_id" required>
+        @foreach ($categories as $category)
+            <option value="{{ $category->id }}">{{ $category->nama_kategori }}</option>
+        @endforeach
+    </select><br>
+
+    <label for="gambar">Foto Produk:</label>
+    <input type="file" id="gambar" name="gambar"><br>
+
+    <button type="submit">Simpan</button>
+</form>
+
+</body>
+</html>
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductCategoryController;
+
+// Route untuk menambah kategori produk
+Route::get('/product-category/create', [ProductCategoryController::class, 'create'])->name('product-category.create');
+Route::post('/product-category', [ProductCategoryController::class, 'store'])->name('product-category.store');
+
+// Route untuk menambah produk
+Route::get('/product/create', [ProductController::class, 'create'])->name('product.create');
+Route::post('/product', [ProductController::class, 'store'])->name('product.store');
