@@ -1,0 +1,95 @@
+php artisan make:model ProductCategory
+php artisan make:controller ProductCategoryController
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\ProductCategory; // Import model ProductCategory
+
+class ProductCategoryController extends Controller
+{
+    /**
+     * Menampilkan daftar kategori produk
+     */
+    public function index()
+    {
+        // Mengambil semua data kategori produk
+        $categories = ProductCategory::all();
+
+        // Mengirim data kategori produk ke view
+        return view('product-category.index', compact('categories'));
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Kategori Produk</title>
+</head>
+<body>
+
+<h2>Daftar Kategori Produk</h2>
+
+@if($categories->isEmpty())
+    <p>Tidak ada kategori produk.</p>
+@else
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nama Kategori</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($categories as $category)
+                <tr>
+                    <td>{{ $category->id }}</td>
+                    <td>{{ $category->nama_kategori }}</td>
+                    <td>
+                        <!-- Tombol untuk edit atau hapus kategori bisa ditambahkan di sini -->
+                        <a href="{{ route('product-category.edit', $category->id) }}">Edit</a>
+                        <form action="{{ route('product-category.destroy', $category->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endif
+
+</body>
+</html>
+
+use App\Http\Controllers\ProductCategoryController;
+
+Route::get('/product-categories', [ProductCategoryController::class, 'index'])->name('product-category.index');
+
+public function edit($id)
+{
+    $category = ProductCategory::findOrFail($id);
+    return view('product-category.edit', compact('category'));
+}
+
+public function edit($id)
+{
+    $category = ProductCategory::findOrFail($id);
+    return view('product-category.edit', compact('category'));
+}
+
+public function destroy($id)
+{
+    $category = ProductCategory::findOrFail($id);
+    $category->delete();
+
+    return redirect()->route('product-category.index')->with('success', 'Kategori berhasil dihapus');
+}
+
+Route::get('/product-category/{id}/edit', [ProductCategoryController::class, 'edit'])->name('product-category.edit');
+Route::put('/product-category/{id}', [ProductCategoryController::class, 'update'])->name('product-category.update');
+Route::delete('/product-category/{id}', [ProductCategoryController::class, 'destroy'])->name('product-category.destroy');
