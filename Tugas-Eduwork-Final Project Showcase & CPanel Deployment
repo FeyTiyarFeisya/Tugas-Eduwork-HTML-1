@@ -1,0 +1,84 @@
+routes/web.php
+use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\Route;
+
+// ... route lainnya ...
+
+Route::post('/produk/{product}/klik', [ProductController::class, 'incrementKlik'])->name('produk.klik');
+Route::get('/produk/{product}', [ProductController::class, 'show'])->name('produk.show'); // Asumsi Anda punya route untuk menampilkan detail produk
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
+{
+    // ... fungsi lainnya ...
+
+    /**
+     * Meningkatkan jumlah klik pada produk.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function incrementKlik(Request $request, Product $product)
+    {
+        $product->increment('klik');
+        return response()->json(['success' => true]); // Mengembalikan respons JSON jika berhasil
+    }
+
+    /**
+     * Menampilkan detail produk.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\View\View
+     */
+    public function show(Product $product)
+    {
+        return view('produk.show', compact('product')); // Asumsi Anda punya view untuk detail produk
+    }
+}
+@foreach ($products as $product)
+    <div class="product-item">
+        <h3>{{ $product->name }}</h3>
+        <a href="{{ route('produk.show', $product->id) }}"
+           onclick="event.preventDefault(); incrementClick({{ $product->id }}); setTimeout(() => { window.location.href = '{{ route('produk.show', $product->id) }}'; }, 500);">
+            Lihat Detail
+        </a>
+        {{-- <a href="{{ route('produk.show', $product->id) }}"
+           onclick="incrementClick({{ $product->id }})">
+            Lihat Detail
+        </a> --}}
+    </div>
+@endforeach
+
+<script>
+    function incrementClick(productId) {
+        fetch(`/produk/${productId}/klik`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+            },
+        });
+    }
+</script>
+
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
+require __DIR__.'/../nama_proyek/vendor/autoload.php';
+
+$app = require_once __DIR__.'/../nama_proyek/bootstrap/app.php';
+
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=nama_database_anda
+DB_USERNAME=username_database_anda
+DB_PASSWORD=password_database_anda
