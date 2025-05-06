@@ -1,0 +1,226 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ProductCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class ProductCategoryController extends Controller
+{
+    /**
+     * Menampilkan halaman form tambah kategori produk.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function create()
+    {
+        return view('product_category.create'); // Asumsi file blade ada di folder 'product_category' dengan nama 'create.blade.php'
+    }
+
+    /**
+     * Menyimpan kategori produk baru ke database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
+    {
+        // Validasi input dari form
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:product_categories',
+            'description' => 'nullable|string',
+        ]);
+
+        // Jika validasi gagal, kembalikan ke form dengan error
+        if ($validator->fails()) {
+            return redirect()->route('product-category.create')
+                             ->withErrors($validator)
+                             ->withInput();
+        }
+
+        // Buat instance ProductCategory baru dan isi dengan data dari form
+        $category = new ProductCategory();
+        $category->name = $request->name;
+        $category->description = $request->description;
+        $category->save();
+
+        // Redirect ke halaman yang sesuai dengan pesan sukses
+        return redirect()->route('product-category.index')->with('success', 'Kategori produk berhasil ditambahkan.');
+    }
+}
+
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use App\Models\ProductCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class ProductController extends Controller
+{
+    /**
+     * Menampilkan halaman form tambah produk.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function create()
+    {
+        $categories = ProductCategory::all(); // Mengambil semua data kategori produk untuk ditampilkan di dropdown
+        return view('product.create', compact('categories')); // Asumsi file blade ada di folder 'product' dengan nama 'create.blade.php'
+    }
+
+    /**
+     * Menyimpan produk baru ke database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
+    {
+        // Validasi input dari form
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:products',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'category_id' => 'required|exists:product_categories,id', // Memastikan category_id ada di tabel product_categories
+            // Tambahkan validasi lain sesuai kebutuhan (misalnya untuk gambar)
+        ]);
+
+        // Jika validasi gagal, kembalikan ke form dengan error
+        if ($validator->fails()) {
+            return redirect()->route('product.create')
+                             ->withErrors($validator)
+                             ->withInput();
+        }
+
+        // Buat instance Product baru dan isi dengan data dari form
+        $product = new Product();
+        $product->name = $request->name;
+        $product->description = $request->description;
+        $product->price = $request->price;
+        $product->stock = $request->stock;
+        $product->category_id = $request->category_id;
+        // Handle penyimpanan gambar jika ada
+        // if ($request->hasFile('image')) {
+        //     $path = $request->file('image')->store('products'); // Simpan di folder 'products' di storage
+        //     $product->image = $path;
+        // }
+        $product->save();
+
+        // Redirect ke halaman yang sesuai dengan pesan sukses
+        return redirect()->route('product.index')->with('success', 'Produk berhasil ditambahkan.');
+    }
+}
+
+<?php
+
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductCategoryController;
+use Illuminate\Support\Facades\Route;
+
+// Route untuk ProductCategoryController
+Route::prefix('product-category')->name('product-category.')->group(function () {
+    Route::get('/create', [ProductCategoryController::class, 'create'])->name('create');
+    Route::post('/store', [ProductCategoryController::class, 'store'])->name('store');
+    // Route lain untuk kategori produk (index, edit, update, delete) bisa ditambahkan di sini
+});
+
+// Route untuk ProductController
+Route::prefix('product')->name('product.')->group(function () {
+    Route::get('/create', [ProductController::class, 'create'])->name('create');
+    Route::post('/store', [ProductController::class, 'store'])->name('store');
+    // Route lain untuk produk (index, edit, update, delete) bisa ditambahkan di sini
+});
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tambah Kategori Produk</title>
+</head>
+<body>
+    <h1>Tambah Kategori Produk</h1>
+
+    @if ($errors->any())
+        <div style="color: red;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('product-category.store') }}" method="POST">
+        @csrf
+        <div>
+            <label for="name">Nama Kategori:</label>
+            <input type="text" id="name" name="name" value="{{ old('name') }}" required>
+        </div>
+        <div>
+            <label for="description">Deskripsi:</label>
+            <textarea id="description" name="description">{{ old('description') }}</textarea>
+        </div>
+        <button type="submit">Simpan</button>
+        <a href="{{ route('product-category.index') }}">Batal</a>
+    </form>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tambah Produk</title>
+</head>
+<body>
+    <h1>Tambah Produk</h1>
+
+    @if ($errors->any())
+        <div style="color: red;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('product.store') }}" method="POST">
+        @csrf
+        <div>
+            <label for="name">Nama Produk:</label>
+            <input type="text" id="name" name="name" value="{{ old('name') }}" required>
+        </div>
+        <div>
+            <label for="description">Deskripsi:</label>
+            <textarea id="description" name="description">{{ old('description') }}</textarea>
+        </div>
+        <div>
+            <label for="price">Harga:</label>
+            <input type="number" id="price" name="price" value="{{ old('price') }}" required min="0">
+        </div>
+        <div>
+            <label for="stock">Stok:</label>
+            <input type="number" id="stock" name="stock" value="{{ old('stock') }}" required min="0" step="1">
+        </div>
+        <div>
+            <label for="category_id">Kategori:</label>
+            <select id="category_id" name="category_id" required>
+                <option value="">Pilih Kategori</option>
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <button type="submit">Simpan</button>
+        <a href="{{ route('product.index') }}">Batal</a>
+    </form>
+</body>
+</html>
