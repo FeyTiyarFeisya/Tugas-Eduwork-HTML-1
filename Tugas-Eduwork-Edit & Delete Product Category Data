@@ -1,0 +1,168 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ProductCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class ProductCategoryController extends Controller
+{
+    /**
+     * Menampilkan halaman form edit kategori produk.
+     *
+     * @param  \App\Models\ProductCategory  $productCategory
+     * @return \Illuminate\View\View
+     */
+    public function edit(ProductCategory $productCategory)
+    {
+        return view('product_category.edit', compact('productCategory'));
+    }
+
+    /**
+     * Memperbarui data kategori produk di database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\ProductCategory  $productCategory
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, ProductCategory $productCategory)
+    {
+        $rules = [
+            'name' => 'required|string|max:255|unique:product_categories,name,' . $productCategory->id,
+            'description' => 'nullable|string',
+        ];
+
+        $messages = [
+            'name.required' => 'Nama kategori wajib diisi.',
+            'name.string' => 'Nama kategori harus berupa teks.',
+            'name.max' => 'Nama kategori maksimal 255 karakter.',
+            'name.unique' => 'Nama kategori ini sudah ada.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return redirect()->route('product-category.edit', $productCategory->id)
+                             ->withErrors($validator)
+                             ->withInput();
+        }
+
+        $productCategory->name = $request->input('name');
+        $productCategory->description = $request->input('description');
+        $productCategory->save();
+
+        return redirect()->route('product-category.index')->with('success', 'Kategori produk berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus kategori produk dari database berdasarkan ID.
+     *
+     * @param  \App\Models\ProductCategory  $productCategory
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(ProductCategory $productCategory)
+    {
+        $productCategory->delete();
+
+        return redirect()->route('product-category.index')->with('success', 'Kategori produk berhasil dihapus.');
+    }
+}
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use App\Models\ProductCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class ProductController extends Controller
+{
+    /**
+     * Menampilkan halaman form edit produk.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\View\View
+     */
+    public function edit(Product $product)
+    {
+        $categories = ProductCategory::all();
+        return view('product.edit', compact('product', 'categories'));
+    }
+
+    /**
+     * Memperbarui data produk di database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, Product $product)
+    {
+        $rules = [
+            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'category_id' => 'required|exists:product_categories,id',
+            // Tambahkan aturan validasi lain sesuai kebutuhan (misalnya untuk gambar)
+        ];
+
+        $messages = [
+            'name.required' => 'Nama produk wajib diisi.',
+            'name.string' => 'Nama produk harus berupa teks.',
+            'name.max' => 'Nama produk maksimal 255 karakter.',
+            'name.unique' => 'Nama produk ini sudah ada.',
+            'price.required' => 'Harga wajib diisi.',
+            'price.numeric' => 'Harga harus berupa angka.',
+            'price.min' => 'Harga tidak boleh negatif.',
+            'stock.required' => 'Stok wajib diisi.',
+            'stock.integer' => 'Stok harus berupa bilangan bulat.',
+            'stock.min' => 'Stok tidak boleh negatif.',
+            'category_id.required' => 'Kategori wajib dipilih.',
+            'category_id.exists' => 'Kategori yang dipilih tidak valid.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return redirect()->route('product.edit', $product->id)
+                             ->withErrors($validator)
+                             ->withInput();
+        }
+
+        $product->name = $request->input('name');
+        $product->description = $request->input('description');
+        $product->price = $request->input('price');
+        $product->stock = $request->input('stock');
+        $product->category_id = $request->input('category_id');
+        // Handle pembaruan gambar jika ada
+        // if ($request->hasFile('image')) {
+        //     // Hapus gambar lama jika perlu
+        //     Storage::delete($product->image);
+        //     $path = $request->file('image')->store('products');
+        //     $product->image = $path;
+        // }
+        $product->save();
+
+        return redirect()->route('product.index')->with('success', 'Produk berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus produk dari database berdasarkan ID.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Product $product)
+    {
+        // Hapus gambar terkait jika ada
+        // Storage::delete($product->image);
+
+        $product->delete();
+
+        return redirect()->route('product.index')->with('success', 'Produk berhasil dihapus.');
+    }
+}
