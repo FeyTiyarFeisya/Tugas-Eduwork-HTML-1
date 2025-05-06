@@ -1,0 +1,109 @@
+php artisan make:migration add_klik_column_to_products_table --table=products
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddKlikColumnToProductsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->unsignedBigInteger('klik')->default(0)->after('stock'); // Tambahkan kolom 'klik' setelah kolom 'stock', default 0
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('klik'); // Hapus kolom 'klik' jika migrasi di-rollback
+        });
+    }
+}
+
+php artisan migrate
+php artisan make:controller DashboardController
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use App\Models\ProductCategory;
+use Illuminate\Support\Facades\DB;
+
+class DashboardController extends Controller
+{
+    /**
+     * Menampilkan halaman dashboard dengan data statistik.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        $jumlahProduk = Product::count();
+        $jumlahKlikProduk = Product::sum('klik');
+        $jumlahKategori = ProductCategory::count();
+
+        return view('dashboard', compact('jumlahProduk', 'jumlahKlikProduk', 'jumlahKategori'));
+    }
+}
+<?php
+
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
+
+// ... route lainnya ...
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    </head>
+<body>
+    <h1>Dashboard</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Jumlah Produk</h5>
+                    <p class="card-text">{{ $jumlahProduk }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Klik Produk</h5>
+                    <p class="card-text">{{ $jumlahKlikProduk }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Jumlah Kategori</h5>
+                    <p class="card-text">{{ $jumlahKategori }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+</html>
